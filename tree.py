@@ -24,7 +24,6 @@ def print_tree(tree):
 
 def build_individual():
     individual = Tree(random.choice(operators))
-    
 
 def main():
     build_individual()
