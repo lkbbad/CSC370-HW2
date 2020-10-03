@@ -4,7 +4,7 @@ import copy
 
 POP_SIZE = 1000   # population size
 MIN_DEPTH = 2    # minimal initial random tree depth
-MAX_DEPTH = 3   # maximal initial random tree depth
+MAX_DEPTH = 4   # maximal initial random tree depth
 PROB_MUTATION = 0.2  # probability of perfoming a mutation
 CROSSOVER_RATE = 0.8  # crossover rate
 
@@ -141,11 +141,11 @@ def init_population(): # ramped half-and-half
     return population
         
 def main():
-        t1 = Tree()
-        t1.random_tree(grow = True, max_depth = MAX_DEPTH, depth = 0)
-        t1.print_tree()
-        print(t1.tree_string())
-        print(t1.compute_tree(3))
+        # t1 = Tree()
+        # t1.random_tree(grow = True, max_depth = MAX_DEPTH, depth = 0)
+        # t1.print_tree()
+        # print(t1.tree_string())
+        # print(t1.compute_tree(3))
         
         # demonstrating mutation
 #        t1.mutation()
@@ -155,22 +155,22 @@ def main():
 #        print(t1.compute_tree(3))
 
         # demonstrating crossover
-        t2 = Tree()
-        t2.random_tree(grow = True, max_depth = MAX_DEPTH, depth = 0)
-        t2.print_tree()
-        print(t2.tree_string())
-        print(t2.compute_tree(3))
+        # t2 = Tree()
+        # t2.random_tree(grow = True, max_depth = MAX_DEPTH, depth = 0)
+        # t2.print_tree()
+        # print(t2.tree_string())
+        # print(t2.compute_tree(3))
         
-        t1.crossover(t2)
+        # t1.crossover(t2)
         
-        t1.print_tree()
-        print(t1.tree_string())
-        print(t1.compute_tree(3))
+        # t1.print_tree()
+        # print(t1.tree_string())
+        # print(t1.compute_tree(3))
         
         
-        t2.print_tree()
-        print(t2.tree_string())
-        print(t2.compute_tree(3))
+        # t2.print_tree()
+        # print(t2.tree_string())
+        # print(t2.compute_tree(3))
         
         
         
