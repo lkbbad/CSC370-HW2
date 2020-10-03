@@ -8,8 +8,6 @@ MAX_DEPTH = 4   # maximal initial random tree depth
 PROB_MUTATION = 0.2  # probability of perfoming a mutation
 CROSSOVER_RATE = 0.8  # crossover rate
 
-
-
 def add(x, y): return x + y
 def sub(x, y): return x - y
 def mul(x, y): return x * y
@@ -127,6 +125,7 @@ class Tree:
         else :
             print("no crossover")
 
+
 def init_population(): # ramped half-and-half
     population = []
     for md in range(3, MAX_DEPTH + 1):
@@ -140,7 +139,7 @@ def init_population(): # ramped half-and-half
             population.append(t) 
     return population
         
-def main():
+# def main():
         # t1 = Tree()
         # t1.random_tree(grow = True, max_depth = MAX_DEPTH, depth = 0)
         # t1.print_tree()
@@ -174,6 +173,5 @@ def main():
         
         
         
-
 if __name__ == "__main__":
     main()
