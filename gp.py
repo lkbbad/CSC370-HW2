@@ -8,7 +8,7 @@ import math
 
 TOURNAMENT_SIZE = 5
 GENERATIONS = 50
-POP_SIZE = 10
+POP_SIZE = 5
 PROB_MUTATION = 0.1  # probability of perfoming a mutation
 CROSSOVER_RATE = 0.9  # crossover rate
 
@@ -65,15 +65,9 @@ def dataset1(population, training_df, check_df, TRAINING):
     # for f in fitnesses:
     #     print(f.fitness)
 
-    # if max(fitnesses) > best_fit:
-    #     best_fit = max(fitnesses)
-
-    # best_tree = population[fitnesses.index(max(fitnesses))]
-    
-    # print(fitnesses.index(max(fitnesses))) #printing pop index of most fit tree
-    # best_tree.print_tree() #tree
-    # print(best_tree.fitness) #fitness of tree, normalized from [0,1]
-    # print(best_tree.tree_string()) #printing tree equation
+    # print("old pop")
+    # for i in population:
+    #     i.print_tree()
 
     for gen in range(1):        
         nextgen_population=[]
@@ -83,20 +77,16 @@ def dataset1(population, training_df, check_df, TRAINING):
             for j in range(xo_parent_num):
                 xo_parent1 = fitness_prop_selection(fitnesses, population)
                 xo_parent2 = fitness_prop_selection(fitnesses, population)
-                print(xo_parent1, xo_parent2)
+                xo_parent1.crossover(xo_parent2)
             for k in range(mut_parent_num):
                 mut_parent = fitness_prop_selection(fitnesses, population)
-                print(mut_parent)
+                mut_parent.mutation()
+                nextgen_population.append(mut_parent)
+    # print("new pop")
+    # for i in nextgen_population:
+    #     i.print_tree()
 
-    #         parent1 = selection(population, fitnesses)
-    #         parent1.print_tree()
-    #         parent2 = selection(population, fitnesses)
-    #         parent2.print_tree()
-    #         parent1.crossover(parent2)
-    #         parent1.print_tree()
-    #         parent1.mutation()
-    #         parent1.print_tree()
-    #         nextgen_population.append(parent1)
+
     #     population=nextgen_population
     #     fitnesses = [fitness(population[i], x_training, y_training) for i in range(POP_SIZE)]
     #     print(fitnesses)
@@ -113,15 +103,15 @@ def dataset1(population, training_df, check_df, TRAINING):
     #       " and has f=" + str(round(best_of_run_f,3)))
     # best_of_run.print_tree()
 
-# def dataset2(population, training_df, check_df, TRAINING):
-#     x1_training = training_df['x1'].tolist()
-#     x2_training = training_df['x2'].tolist()
-#     x3_training = training_df['x3'].tolist()
-#     y_training = training_df['f(x1,x2,x3)'].tolist()
-#     x1_check = check_df['x1'].tolist()
-#     x2_check = check_df['x2'].tolist()
-#     x3_check = check_df['x3'].tolist()
-#     y_check = check_df['f(x1,x2,x3)'].tolist()
+def dataset2(population, training_df, check_df, TRAINING):
+    x1_training = training_df['x1'].tolist()
+    x2_training = training_df['x2'].tolist()
+    x3_training = training_df['x3'].tolist()
+    y_training = training_df['f(x1,x2,x3)'].tolist()
+    x1_check = check_df['x1'].tolist()
+    x2_check = check_df['x2'].tolist()
+    x3_check = check_df['x3'].tolist()
+    y_check = check_df['f(x1,x2,x3)'].tolist()
 
 def main():
     # Create first generation of 1000 trees/functions in a list

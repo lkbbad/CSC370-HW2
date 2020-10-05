@@ -2,11 +2,11 @@ import operator
 import random
 import copy
 
-POP_SIZE = 10   # population size
+POP_SIZE = 5   # population size
 MIN_DEPTH = 2    # minimal initial random tree depth
 MAX_DEPTH = 4   # maximal initial random tree depth
 PROB_MUTATION = 0.75  # probability of perfoming a mutation
-CROSSOVER_RATE = 0.8  # crossover rate
+CROSSOVER_RATE = 0.75  # crossover rate
 
 def add(x, y): return x + y
 def sub(x, y): return x - y
@@ -21,7 +21,6 @@ class Tree:
         self.left  = left
         self.right = right
         self.fitness = 0
-        # self.count = count(self)
 
     def __str__(self):
         return str(self.body)
@@ -98,43 +97,34 @@ class Tree:
                     self.body = new
         elif self.left: self.left.mutation()
         elif self.right: self.right.mutation()
+    
+    def random_subtree(self):
+        rand = random.uniform(0,1)
+        if rand > CROSSOVER_RATE or (not self.left and not self.right): 
+            return self
+        elif self.left: self.left.random_subtree()
+        elif self.right: self.right.random_subtree()
 
-        
-    # def size(self): # tree size in nodes
-    #     if self.body in operators: return 1
-    #     l = self.left.size()  if self.left  else 0
-    #     r = self.right.size() if self.right else 0
-    #     return 1 + l + r
+    def crossover(self, parent2):
+        rand = random.uniform(0,1)
+        if rand > CROSSOVER_RATE or (not self.left and not self.right): # xo at this node
+            # print("parent1 before")
+            # self.print_tree()
+            print("parent2 before")
+            parent2.print_tree()
 
-    # def build_subtree(self): # count is list in order to pass "by reference"
-    #     t = Tree()
-    #     t.body = self.body
-    #     if self.left:  t.left  = self.left.build_subtree()
-    #     if self.right: t.right = self.right.build_subtree()
-    #     return t
-                        
-    # def scan_tree(self, count, second): # note: count is list, so it's passed "by reference"
-    #     count[0] -= 1
-    #     if count[0] <= 1:
-    #         if not second: # return subtree rooted here
-    #             return self.build_subtree()
-    #         else: # glue subtree here
-    #             self.body  = second.body
-    #             self.left  = second.left
-    #             self.right = second.right
-    #     else:
-    #         ret = None
-    #         if self.left  and count[0] > 1: ret = self.left.scan_tree(count, second)
-    #         if self.right and count[0] > 1: ret = self.right.scan_tree(count, second)
-    #         return ret
+            print("subtree to cross")
+            try: 
+                parent2.random_subtree().print_tree()
+            except:
+                pass
 
-    # def crossover(self, other): # xo 2 trees at random nodes
-    #     if random.random() < CROSSOVER_RATE:
-    #         second = other.scan_tree([random.randint(1, other.size())], None) # 2nd random subtree
-    #         self.scan_tree([random.randint(1, self.size())], second) # 2nd subtree "glued" inside 1st tree
-    #     else :
-    #         print("no crossover")
+            # self.left = parent2_subtree
+            # print("parent1 after")
+            # self.print_tree()
 
+        elif self.left: self.left.crossover(parent2)
+        elif self.right: self.right.crossover(parent2)
 
 def init_population(): # ramped half-and-half
     population = []
@@ -149,66 +139,13 @@ def init_population(): # ramped half-and-half
             population.append(t) 
     return population
 
-# def count(tree): # counts the number of nodes in tree
-#     if not tree: return 0
-#     return count(tree.left) + 1 + count(tree.right)
-
-# # function to get the random node
-# def get_random_node(tree):
-#     a = tree.count
-#     b = tree.left.count if tree.left else 0
-#     c = tree.right.count if tree.right else 0
-    
-#     if b == c == 0:
-#         return tree.body
-    
-#     rand_num = random.randint(1, a)
-    
-#     if rand_num <= b: return get_random_node(tree.left)
-#     elif rand_num == b + 1: return tree.val
-#     else: return get_random_node(tree.right)
-
-
-        
 def main():
     t1 = Tree()
+    t2 = Tree()
     t1.random_tree(grow = True, max_depth = MAX_DEPTH, depth = 0)
-    t1.print_tree()
-    # print(count(t1))
-    # print(get_random_node(t1))
-    t1.mutation()
-    t1.print_tree()
+    t2.random_tree(grow = True, max_depth = MAX_DEPTH, depth = 0)
+ 
+    t1.crossover(t2)
 
-        # print(t1.tree_string())
-
-        # print(t1.compute_tree(3))
-        
-        # demonstrating mutation
-#        t1.mutation()
-#
-#        t1.print_tree()
-#        print(t1.tree_string())
-#        print(t1.compute_tree(3))
-
-        # demonstrating crossover
-        # t2 = Tree()
-        # t2.random_tree(grow = True, max_depth = MAX_DEPTH, depth = 0)
-        # t2.print_tree()
-        # print(t2.tree_string())
-        # print(t2.compute_tree(3))
-        
-        # t1.crossover(t2)
-        
-        # t1.print_tree()
-        # print(t1.tree_string())
-        # print(t1.compute_tree(3))
-        
-        
-        # t2.print_tree()
-        # print(t2.tree_string())
-        # print(t2.compute_tree(3))
-        
-        
-        
 if __name__ == "__main__":
     main()
