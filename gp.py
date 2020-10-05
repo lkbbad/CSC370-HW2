@@ -20,7 +20,15 @@ def fitness(func, x_training, y_training):
     fitness = 0.0
     for i in range(len(x_training)):
         diff_squared = (func.compute_tree(x_training[i]) - y_training[i])**2
-        fitness += diff_squared / len(x_training)
+        fitness += diff_squared
+        
+    size = tree.tree_len(func)
+    print(size)
+
+    fitness = (fitness / size)/ len(x_training)
+    
+    
+
     if not (math.isnan(fitness)):
         return 1.0 / fitness
     else: return float("inf") 

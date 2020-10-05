@@ -21,6 +21,12 @@ class Tree:
         self.left  = left
         self.right = right
         self.fitness = 0
+        
+    def get_left(self):
+        return self.left
+
+    def get_right(self):
+        return self.right
 
     def __str__(self):
         return str(self.body)
@@ -123,7 +129,12 @@ class Tree:
 
             elif self.left: self.left.crossover(parent2)
             elif self.right: self.right.crossover(parent2)
-
+            
+def tree_len(tree):
+    if tree is None:
+        return 0
+    return 1 + tree_len(tree.get_left()) + tree_len(tree.get_right())
+        
 def init_population(): # ramped half-and-half
     population = []
     for md in range(MIN_DEPTH, MAX_DEPTH - 1):
@@ -144,6 +155,7 @@ def main():
     t2.random_tree(grow = True, max_depth = MAX_DEPTH, depth = 0)
  
     t1.crossover(t2)
+    t1.print_tree()
 
 if __name__ == "__main__":
     main()
