@@ -2,11 +2,11 @@ import operator
 import random
 import copy
 
-POP_SIZE = 5   # population size
+POP_SIZE = 15   # population size
 MIN_DEPTH = 2    # minimal initial random tree depth
 MAX_DEPTH = 4   # maximal initial random tree depth
 PROB_MUTATION = 0.75  # probability of perfoming a mutation
-CROSSOVER_RATE = 0.75  # crossover rate
+CROSSOVER_RATE = 0.2  # crossover rate
 
 def add(x, y): return x + y
 def sub(x, y): return x - y
@@ -101,30 +101,28 @@ class Tree:
     def random_subtree(self):
         rand = random.uniform(0,1)
         if rand > CROSSOVER_RATE or (not self.left and not self.right): 
-            return self
-        elif self.left: self.left.random_subtree()
-        elif self.right: self.right.random_subtree()
+            return self.copy()
+        elif self.left: return self.left.random_subtree()
+        elif self.right: return self.right.random_subtree()
 
     def crossover(self, parent2):
-        rand = random.uniform(0,1)
-        if rand > CROSSOVER_RATE or (not self.left and not self.right): # xo at this node
-            # print("parent1 before")
-            # self.print_tree()
-            print("parent2 before")
-            parent2.print_tree()
+        if self.body in operators:
+            rand = random.uniform(0,1)
+            if rand > CROSSOVER_RATE or (not self.left and not self.right): # xo at this node
+                # print("parent1 before")
+                # self.print_tree()
+                # print("parent2 before")
+                # parent2.print_tree()
 
-            print("subtree to cross")
-            try: 
-                parent2.random_subtree().print_tree()
-            except:
-                pass
+                # print("subtree to cross")
+                parent2_subtree = parent2.random_subtree()
+                self.left = parent2_subtree
 
-            # self.left = parent2_subtree
-            # print("parent1 after")
-            # self.print_tree()
+                # print("parent1 after")
+                # self.print_tree()
 
-        elif self.left: self.left.crossover(parent2)
-        elif self.right: self.right.crossover(parent2)
+            elif self.left: self.left.crossover(parent2)
+            elif self.right: self.right.crossover(parent2)
 
 def init_population(): # ramped half-and-half
     population = []

@@ -6,9 +6,8 @@ import random
 import copy
 import math
 
-TOURNAMENT_SIZE = 5
-GENERATIONS = 50
-POP_SIZE = 5
+GENERATIONS = 2
+POP_SIZE = 10
 PROB_MUTATION = 0.1  # probability of perfoming a mutation
 CROSSOVER_RATE = 0.9  # crossover rate
 
@@ -24,12 +23,7 @@ def fitness(func, x_training, y_training):
         fitness += diff_squared / len(x_training)
     if not (math.isnan(fitness)):
         return 1.0 / fitness
-    else: return float("inf")
-
-# def selection(population, fitnesses): # select one individual using tournament selection
-#     tournament = [random.randint(0, len(population)-1) for i in range(TOURNAMENT_SIZE)] # select tournament contenders
-#     tournament_fitnesses = [fitnesses[tournament[i]] for i in range(TOURNAMENT_SIZE)]
-#     return copy.deepcopy(population[tournament[tournament_fitnesses.index(max(tournament_fitnesses))]]) 
+    else: return float("inf") 
 
 def fitness_prop_selection(fitnesses, population):
     sum_fitness = 0
@@ -48,9 +42,9 @@ def fitness_prop_selection(fitnesses, population):
 
 def dataset1(population, training_df, check_df, TRAINING):
     fitnesses = []
-    # best_of_run = None
-    # best_of_run_f = 0
-    # best_of_run_gen = 0
+    best_of_run = None
+    best_of_run_f = 0
+    best_of_run_gen = 0
 
     x_training = training_df['x'].tolist()
     y_training = training_df['f(x)'].tolist()
@@ -59,9 +53,11 @@ def dataset1(population, training_df, check_df, TRAINING):
 
     # Find fitness for each function in first generation
     for func in population:
+        func.print_tree()
         func.fitness = fitness(func, x_training, y_training)
         if func.fitness != float("inf"): 
             fitnesses.append(func)
+    # print("old")
     # for f in fitnesses:
     #     print(f.fitness)
 
@@ -71,33 +67,49 @@ def dataset1(population, training_df, check_df, TRAINING):
 
     for gen in range(1):        
         nextgen_population=[]
-        for i in range(1):
+        for i in range(POP_SIZE):
             xo_parent_num = int(int(POP_SIZE / 2) * CROSSOVER_RATE)
             mut_parent_num = int(POP_SIZE - (2 * xo_parent_num))
             for j in range(xo_parent_num):
                 xo_parent1 = fitness_prop_selection(fitnesses, population)
                 xo_parent2 = fitness_prop_selection(fitnesses, population)
+                xo_parent1.print_tree()
+                xo_parent2.print_tree()
                 xo_parent1.crossover(xo_parent2)
+                nextgen_population.append(xo_parent1)
             for k in range(mut_parent_num):
                 mut_parent = fitness_prop_selection(fitnesses, population)
                 mut_parent.mutation()
                 nextgen_population.append(mut_parent)
     # print("new pop")
-    # for i in nextgen_population:
-    #     i.print_tree()
+    for i in nextgen_population:
+        i.print_tree()
+        population = nextgen_population
+        for func in population:
+            func.fitness = fitness(func, x_training, y_training)
+            if func.fitness != float("inf"): 
+                print(func.fitness)
+                fitnesses.append(func)
 
-
-    #     population=nextgen_population
-    #     fitnesses = [fitness(population[i], x_training, y_training) for i in range(POP_SIZE)]
-    #     print(fitnesses)
-    #     if max(fitnesses) > best_of_run_f:
-    #         best_of_run_f = max(fitnesses)
-    #         best_of_run_gen = gen
-    #         best_of_run = copy.deepcopy(population[fitnesses.index(max(fitnesses))])
-    #         print("________________________")
-    #         print("gen:", gen, ", best_of_run_f:", round(max(fitnesses),3), ", best_of_run:") 
-    #         best_of_run.print_tree()
-    #     if best_of_run_f == 1: break   
+        # print("new")
+        # for f in fitnesses:
+        #     print(f.fitness)
+        
+        max_fitness = 0
+        for f in fitnesses:
+            if f.fitness > max_fitness:
+                max_fitness = f.fitness
+                func = f
+                
+        if max_fitness > best_of_run_f:
+            best_of_run_f = max_fitness
+            best_of_run_gen = gen
+            best_of_run = copy.deepcopy(population[fitnesses.index(func)])
+            print("________________________")
+            print("gen:", gen, ", best_of_run_f:", round(max_fitness,3), ", best_of_run:") 
+            best_of_run.print_tree()
+            
+        if best_of_run_f == 1: break   
     
     # print("\n\n_________________________________________________\nEND OF RUN\nbest_of_run attained at gen " + str(best_of_run_gen) +\
     #       " and has f=" + str(round(best_of_run_f,3)))
