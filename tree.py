@@ -6,7 +6,7 @@ POP_SIZE = 10   # population size
 MIN_DEPTH = 2    # minimal initial random tree depth
 MAX_DEPTH = 4   # maximal initial random tree depth
 PROB_MUTATION = 0.75  # probability of perfoming a mutation
-CROSSOVER_RATE = 0.2  # crossover rate
+CROSSOVER_RATE = 0.8  # crossover rate
 
 def add(x, y): return x + y
 def sub(x, y): return x - y
@@ -17,7 +17,7 @@ def div(x, y):
     except ZeroDivisionError:
         return 0
 operators = [add, sub, mul, div]
-terminals = [-2, -1, 1, 2, 'x','x','x']
+terminals = [-2, -1, 0, 1, 2, 'x']
 
 class Tree:
     def __init__(self, body = None, left = None, right = None):
@@ -78,13 +78,13 @@ class Tree:
         right_sum = self.right.tree_string() 
         # check which operation to apply 
         if self.body == add: 
-            return str(left_sum) + '+' + str(right_sum) 
+            return '(' + str(left_sum) + ')' + '+' + '(' + str(right_sum) + ')'
         elif self.body == sub: 
-            return str(left_sum) + '-' +  str(right_sum)
+            return '(' + str(left_sum) + ')' + '-' + '(' + str(right_sum) + ')'
         elif self.body == mul: 
-            return str(left_sum) + '*' +  str(right_sum) 
+            return '(' + str(left_sum) + ')' + '*' + '(' + str(right_sum) + ')'
         else: 
-            return str(left_sum) + '/' +  str(right_sum) 
+            return '(' + str(left_sum) + ')' + '/' + '(' + str(right_sum) + ')'
 
     def compute_tree(self, x): 
         if (self.body in operators): 
@@ -157,8 +157,6 @@ def main():
     t1 = Tree()
     t2 = Tree()
     t1.random_tree(grow = True, max_depth = MAX_DEPTH, depth = 0)
-    
-    
 
 
 if __name__ == "__main__":

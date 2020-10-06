@@ -1,15 +1,21 @@
 import tree
 import read_in
-from statistics import mean
 import sys
 import random
 import copy
 import math
 
-GENERATIONS = 2
+## ISSUES: 
+##  - Crossover/mutation is making the functions really big - how can we stop this?
+##  - Normalization of the fitness - is this correct? 
+##  - Penalizing for larger trees in fitness / divide by size - is there a better way?
+##  - Full tree method - why are they so large?
+##  - Fitness function - why are we getting the same fitness for multiple functions across generations?
+##  - Should fitness really be between 0 and 1?
+
+GENERATIONS = 10
 POP_SIZE = 10
-PROB_MUTATION = 0.1  # probability of perfoming a mutation
-CROSSOVER_RATE = 0.9  # crossover rate
+CROSSOVER_PERCENT = 0.9  # crossover rate
 
 def set_up_data(dataset):
     if dataset == 1:
@@ -18,23 +24,25 @@ def set_up_data(dataset):
 
 def fitness(func, x_training, y_training):
     fitness = 0.0
-    for i in range(len(x_training)):
+    for i in range(int(len(x_training)/2)): # NOTE: RUNNING ON HALF DATA
         diff_squared = (abs(func.compute_tree(x_training[i]) - y_training[i]))**2
         fitness += diff_squared
 
     size = tree.tree_len(func)
-    fitness = (fitness/ size)/ len(x_training)
+    fitness = (fitness/ size) /len(x_training)
 
     if not (math.isnan(fitness)):
         return 1.0 / fitness
     else: return float("inf")
 
-def fitness_prop_selection(fitnesses, population):
+def make_wheel(fitnesses):
     sum_fitness = 0
     for f in fitnesses:
         sum_fitness += f.fitness
     roulette = {f : (f.fitness / sum_fitness) for f in fitnesses}
+    return roulette
 
+def fitness_prop_selection(fitnesses, roulette):
     max = sum(roulette.values())
     pick = random.uniform(0, max)
     current = 0
@@ -43,12 +51,11 @@ def fitness_prop_selection(fitnesses, population):
         if current > pick:
             return tree
 
-
 def dataset1(population, training_df, check_df, TRAINING):
     fitnesses = []
-    best_of_run = None
-    best_of_run_f = 0
-    best_of_run_gen = 0
+    best_func = None
+    best_fitness = 0
+    best_gen = 0
 
     x_training = training_df['x'].tolist()
     y_training = training_df['f(x)'].tolist()
@@ -57,69 +64,56 @@ def dataset1(population, training_df, check_df, TRAINING):
 
     # Find fitness for each function in first generation
     for func in population:
-#        func.print_tree()
+        # func.print_tree()
         func.fitness = fitness(func, x_training, y_training)
         if func.fitness != float("inf"): 
             fitnesses.append(func)
-            
-#    print("old")
-#    for f in fitnesses:
-#        print(f.fitness)
-#
-#    print("old pop")
-#    for i in population:
-#        i.print_tree()
 
-    for gen in range(1):
+    for gen in range(GENERATIONS):
+        # print("starting gen")
         nextgen_population=[]
-        for i in range(POP_SIZE):
-            xo_parent_num = int(int(POP_SIZE / 2) * CROSSOVER_RATE)
-            mut_parent_num = int(POP_SIZE - (2 * xo_parent_num))
-            for j in range(xo_parent_num):
-                xo_parent1 = fitness_prop_selection(fitnesses, population)
-                xo_parent2 = fitness_prop_selection(fitnesses, population)
-#                xo_parent1.print_tree()
-#                xo_parent2.print_tree()
-                xo_parent1.crossover(xo_parent2)
-                nextgen_population.append(xo_parent1)
-            for k in range(mut_parent_num):
-                mut_parent = fitness_prop_selection(fitnesses, population)
-                mut_parent.mutation()
-                nextgen_population.append(mut_parent)
-    # print("new pop")
-    for i in nextgen_population:
-#        i.print_tree()
-        population = nextgen_population
-        for func in population:
-            func.fitness = fitness(func, x_training, y_training)
-            if func.fitness != float("inf"):
-                # print(func.fitness)
-                fitnesses.append(func)
-
-        # print("new")
-        # for f in fitnesses:
-        #     print(f.fitness)
+        xo_parent_num = int(POP_SIZE * CROSSOVER_PERCENT)
+        mut_parent_num = int(POP_SIZE - xo_parent_num)
+        roulette = make_wheel(fitnesses)
+        for j in range(xo_parent_num):
+            xo_parent1 = fitness_prop_selection(fitnesses, roulette)
+            xo_parent2 = fitness_prop_selection(fitnesses, roulette)
+            xo_parent1.crossover(xo_parent2)
+            nextgen_population.append(xo_parent1)
+        for k in range(mut_parent_num):
+            mut_parent = fitness_prop_selection(fitnesses, roulette)
+            mut_parent.mutation()
+            nextgen_population.append(mut_parent)
+        # print("finished pop")
 
         max_fitness = 0
-        for f in fitnesses:
-            if f.fitness > max_fitness:
-                max_fitness = f.fitness
-                func = f
+        print("next gen")
+        for func in nextgen_population:
+            # func.print_tree()
+            func.fitness = fitness(func, x_training, y_training)
+            # print("fitness = ", func.fitness)
+            if func.fitness != float("inf"):
+                    # print(func.fitness)
+                # fitnesses.append(func)
+                if func.fitness > max_fitness:
+                    max_fitness = func.fitness
+                    f = func
+                    # print('found max')
+        # print('generated new fitneses')
 
-        if max_fitness > best_of_run_f:
-            best_of_run_f = max_fitness
-            best_of_run_gen = gen
-            best_of_run = copy.deepcopy(population[fitnesses.index(func)])
+        if max_fitness > best_fitness:
+            best_fitness = max_fitness
+            best_gen = gen
+            best_func = copy.deepcopy(f)
             print("________________________")
-            print("gen:", gen, ", best_of_run_f:", round(max_fitness,3), ", best_of_run:")
-            print(tree_len(best_of_run))
+            print("gen:", gen, ", best_fitness:", round(best_fitness,3), ", best_func:")
+            # print(tree.tree_len(best_of_run))
+            # best_func.print_tree()
+            # print(best_func.tree_string())
+            print(best_func.compute_tree(-0.66), " should be 18")
+            print(best_func.compute_tree(2.99), " should be 5") 
 
-            best_of_run.print_tree()
-
-        if best_of_run_f == 1: break
-
-    print("\n\n_________________________________________________\nEND OF RUN\nbest_of_run attained at gen " + str(best_of_run_gen) + " and has f=" + str(round(best_of_run_f,3)))
-    best_of_run.print_tree()
+        if best_fitness >= 1: break
 
 def dataset2(population, training_df, check_df, TRAINING):
     x1_training = training_df['x1'].tolist()
