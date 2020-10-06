@@ -13,8 +13,8 @@ import math
 ##  - Fitness function - why are we getting the same fitness for multiple functions across generations?
 ##  - Should fitness really be between 0 and 1?
 
-GENERATIONS = 10
-POP_SIZE = 10
+GENERATIONS = 1000
+POP_SIZE = 500
 CROSSOVER_PERCENT = 0.9  # crossover rate
 
 def set_up_data(dataset):
@@ -29,7 +29,7 @@ def fitness(func, x_training, y_training):
         fitness += diff_squared
 
     size = tree.tree_len(func)
-    fitness = (fitness/ size) /len(x_training)
+    fitness = (fitness * size) /len(x_training)
 
     if not (math.isnan(fitness)):
         return 1.0 / fitness
@@ -87,7 +87,6 @@ def dataset1(population, training_df, check_df, TRAINING):
         # print("finished pop")
 
         max_fitness = 0
-        print("next gen")
         for func in nextgen_population:
             # func.print_tree()
             func.fitness = fitness(func, x_training, y_training)
@@ -108,7 +107,7 @@ def dataset1(population, training_df, check_df, TRAINING):
             print("________________________")
             print("gen:", gen, ", best_fitness:", round(best_fitness,3), ", best_func:")
             # print(tree.tree_len(best_of_run))
-            # best_func.print_tree()
+            best_func.print_tree()
             # print(best_func.tree_string())
             print(best_func.compute_tree(-0.66), " should be 18")
             print(best_func.compute_tree(2.99), " should be 5") 
