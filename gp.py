@@ -19,19 +19,15 @@ def set_up_data(dataset):
 def fitness(func, x_training, y_training):
     fitness = 0.0
     for i in range(len(x_training)):
-        diff_squared = (func.compute_tree(x_training[i]) - y_training[i])**2
+        diff_squared = (abs(func.compute_tree(x_training[i]) - y_training[i]))**2
         fitness += diff_squared
-        
-    size = tree.tree_len(func)
-    print(size)
 
-    fitness = (fitness / size)/ len(x_training)
-    
-    
+    size = tree.tree_len(func)
+    fitness = (fitness/ size)/ len(x_training)
 
     if not (math.isnan(fitness)):
         return 1.0 / fitness
-    else: return float("inf") 
+    else: return float("inf")
 
 def fitness_prop_selection(fitnesses, population):
     sum_fitness = 0
@@ -61,19 +57,20 @@ def dataset1(population, training_df, check_df, TRAINING):
 
     # Find fitness for each function in first generation
     for func in population:
-        func.print_tree()
+#        func.print_tree()
         func.fitness = fitness(func, x_training, y_training)
         if func.fitness != float("inf"): 
             fitnesses.append(func)
-    # print("old")
-    # for f in fitnesses:
-    #     print(f.fitness)
+            
+#    print("old")
+#    for f in fitnesses:
+#        print(f.fitness)
+#
+#    print("old pop")
+#    for i in population:
+#        i.print_tree()
 
-    # print("old pop")
-    # for i in population:
-    #     i.print_tree()
-
-    for gen in range(1):        
+    for gen in range(1):
         nextgen_population=[]
         for i in range(POP_SIZE):
             xo_parent_num = int(int(POP_SIZE / 2) * CROSSOVER_RATE)
@@ -81,8 +78,8 @@ def dataset1(population, training_df, check_df, TRAINING):
             for j in range(xo_parent_num):
                 xo_parent1 = fitness_prop_selection(fitnesses, population)
                 xo_parent2 = fitness_prop_selection(fitnesses, population)
-                xo_parent1.print_tree()
-                xo_parent2.print_tree()
+#                xo_parent1.print_tree()
+#                xo_parent2.print_tree()
                 xo_parent1.crossover(xo_parent2)
                 nextgen_population.append(xo_parent1)
             for k in range(mut_parent_num):
@@ -91,37 +88,38 @@ def dataset1(population, training_df, check_df, TRAINING):
                 nextgen_population.append(mut_parent)
     # print("new pop")
     for i in nextgen_population:
-        i.print_tree()
+#        i.print_tree()
         population = nextgen_population
         for func in population:
             func.fitness = fitness(func, x_training, y_training)
-            if func.fitness != float("inf"): 
-                print(func.fitness)
+            if func.fitness != float("inf"):
+                # print(func.fitness)
                 fitnesses.append(func)
 
         # print("new")
         # for f in fitnesses:
         #     print(f.fitness)
-        
+
         max_fitness = 0
         for f in fitnesses:
             if f.fitness > max_fitness:
                 max_fitness = f.fitness
                 func = f
-                
+
         if max_fitness > best_of_run_f:
             best_of_run_f = max_fitness
             best_of_run_gen = gen
             best_of_run = copy.deepcopy(population[fitnesses.index(func)])
             print("________________________")
-            print("gen:", gen, ", best_of_run_f:", round(max_fitness,3), ", best_of_run:") 
+            print("gen:", gen, ", best_of_run_f:", round(max_fitness,3), ", best_of_run:")
+            print(tree_len(best_of_run))
+
             best_of_run.print_tree()
-            
-        if best_of_run_f == 1: break   
-    
-    # print("\n\n_________________________________________________\nEND OF RUN\nbest_of_run attained at gen " + str(best_of_run_gen) +\
-    #       " and has f=" + str(round(best_of_run_f,3)))
-    # best_of_run.print_tree()
+
+        if best_of_run_f == 1: break
+
+    print("\n\n_________________________________________________\nEND OF RUN\nbest_of_run attained at gen " + str(best_of_run_gen) + " and has f=" + str(round(best_of_run_f,3)))
+    best_of_run.print_tree()
 
 def dataset2(population, training_df, check_df, TRAINING):
     x1_training = training_df['x1'].tolist()

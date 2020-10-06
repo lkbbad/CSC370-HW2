@@ -2,7 +2,7 @@ import operator
 import random
 import copy
 
-POP_SIZE = 15   # population size
+POP_SIZE = 10   # population size
 MIN_DEPTH = 2    # minimal initial random tree depth
 MAX_DEPTH = 4   # maximal initial random tree depth
 PROB_MUTATION = 0.75  # probability of perfoming a mutation
@@ -11,7 +11,11 @@ CROSSOVER_RATE = 0.2  # crossover rate
 def add(x, y): return x + y
 def sub(x, y): return x - y
 def mul(x, y): return x * y
-def div(x, y): return x / y
+def div(x, y):
+    try:
+        return x/y
+    except ZeroDivisionError:
+        return 0
 operators = [add, sub, mul, div]
 terminals = [-2, -1, 1, 2, 'x','x','x']
 
@@ -42,7 +46,8 @@ class Tree:
         if self.left:  self.left.print_tree (prefix + "   ")
         if self.right: self.right.print_tree(prefix + "   ")
 
-    def random_tree(self, grow, max_depth, depth = 0): 
+    def random_tree(self, grow, max_depth, depth = 0):
+            # Full method
             if depth < MIN_DEPTH or (depth < MAX_DEPTH and not grow):
                 self.body = random.choice(operators)
             elif depth >= MAX_DEPTH:
@@ -137,7 +142,7 @@ def tree_len(tree):
         
 def init_population(): # ramped half-and-half
     population = []
-    for md in range(MIN_DEPTH, MAX_DEPTH - 1):
+    for md in range(2, MAX_DEPTH - 1):
         for i in range(int(POP_SIZE/ 2)):
             t = Tree()
             t.random_tree(grow = True, max_depth = md) # grow
@@ -152,10 +157,9 @@ def main():
     t1 = Tree()
     t2 = Tree()
     t1.random_tree(grow = True, max_depth = MAX_DEPTH, depth = 0)
-    t2.random_tree(grow = True, max_depth = MAX_DEPTH, depth = 0)
- 
-    t1.crossover(t2)
-    t1.print_tree()
+    
+    
+
 
 if __name__ == "__main__":
     main()
