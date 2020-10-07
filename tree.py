@@ -99,17 +99,23 @@ def mutation(parent):
     rand = random.uniform(0,1)
     if rand > PROB_MUTATION or (not parent.left and not parent.right): # mutate at this node
         if parent.body in operators:
+            parent_copy = parent.copy()
             new = random.choice(operators)
-            if new != parent.body:
-                parent.body = new
-                return parent
+            if new != parent_copy.body:
+                parent_copy.body = new
+                return parent_copy.copy()
+            else: return parent_copy.copy()
         else: 
+            parent_copy = parent.copy()
             new = random.choice(terminals)
             if new != parent.body:
-                parent.body = new
-                return parent
-    elif parent.left: mutation(parent.left)
-    elif parent.right: mutation(parent.right)
+                parent_copy.body = new
+                return parent_copy.copy()
+            else: return parent_copy.copy()
+    elif parent.left: return mutation(parent.left)
+    elif parent.right: return mutation(parent.right)
+    else: return parent.copy()
+
     
 def random_subtree(parent2):
     rand = random.uniform(0,1)
@@ -123,14 +129,13 @@ def crossover(parent1, parent2):
         rand = random.uniform(0,1)
         if rand > CROSSOVER_RATE or (not parent1.left and not parent1.right): # xo at this node
             parent1_copy = parent1.copy()
-            print("p1 is ", type(parent1_copy))
-            parent2_subtree = parent2.random_subtree()
-            print("p1 is ", type(parent2_subtree))
+            parent2_subtree = random_subtree(parent2)
             parent1_copy.left = parent2_subtree
-            print("p1 is ", type(parent1_copy))
-            return parent1_copy
-        elif parent1.left: crossover(parent1.left, parent2)
-        elif parent1.right: crossover(parent1.right, parent2)  
+            return parent1_copy.copy()
+        elif parent1.left: return crossover(parent1.left, parent2)
+        elif parent1.right: return crossover(parent1.right, parent2) 
+    else:
+        return parent1.copy()
             
 def tree_len(tree):
     if tree is None:
