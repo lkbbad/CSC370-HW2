@@ -123,8 +123,11 @@ def crossover(parent1, parent2):
         rand = random.uniform(0,1)
         if rand > CROSSOVER_RATE or (not parent1.left and not parent1.right): # xo at this node
             parent1_copy = parent1.copy()
+            print("p1 is ", type(parent1_copy))
             parent2_subtree = parent2.random_subtree()
+            print("p1 is ", type(parent2_subtree))
             parent1_copy.left = parent2_subtree
+            print("p1 is ", type(parent1_copy))
             return parent1_copy
         elif parent1.left: crossover(parent1.left, parent2)
         elif parent1.right: crossover(parent1.right, parent2)  

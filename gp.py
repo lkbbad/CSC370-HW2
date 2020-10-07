@@ -87,43 +87,44 @@ def dataset1(population, training_df, check_df, TRAINING):
             xo_parent1 = fitness_prop_selection(fitnesses, roulette)
             xo_parent2 = fitness_prop_selection(fitnesses, roulette)
             xo_child = tree.crossover(xo_parent1, xo_parent2)
-            xo_child.fitness = fitness(xo_child, x_training, y_training)
-            xo_parent1.fitness = fitness(xo_parent1, x_training, y_training)
-            if (xo_child.fitness < xo_parent1.fitness):
-                nextgen_population.append(xo_parent1)
-            else: nextgen_population.append(xo_child)
-        for k in range(mut_parent_num):
-            mut_parent = fitness_prop_selection(fitnesses, roulette)
-            mut_child = tree.mutation(mut_parent)
-            nextgen_population.append(mut_child)
+            print(type(xo_child))
+    #         xo_child.fitness = fitness(xo_child, x_training, y_training)
+    #         xo_parent1.fitness = fitness(xo_parent1, x_training, y_training)
+    #         if (xo_child.fitness < xo_parent1.fitness):
+    #             nextgen_population.append(xo_parent1)
+    #         else: nextgen_population.append(xo_child)
+    #     for k in range(mut_parent_num):
+    #         mut_parent = fitness_prop_selection(fitnesses, roulette)
+    #         mut_child = tree.mutation(mut_parent)
+    #         nextgen_population.append(mut_child)
 
-        max_fitness = 0
-        for func in nextgen_population:
-            # func.print_tree()
-            func.fitness = fitness(func, x_training, y_training)
-            # print("fitness = ", func.fitness)
-            if func.fitness != float("inf"):
-                    # print(func.fitness)
-                # fitnesses.append(func)
-                if func.fitness > max_fitness:
-                    max_fitness = func.fitness
-                    f = func
-                    # print('found max')
-        # print('generated new fitneses')
+    #     max_fitness = 0
+    #     for func in nextgen_population:
+    #         # func.print_tree()
+    #         func.fitness = fitness(func, x_training, y_training)
+    #         # print("fitness = ", func.fitness)
+    #         if func.fitness != float("inf"):
+    #                 # print(func.fitness)
+    #             # fitnesses.append(func)
+    #             if func.fitness > max_fitness:
+    #                 max_fitness = func.fitness
+    #                 f = func
+    #                 # print('found max')
+    #     # print('generated new fitneses')
 
-        if max_fitness > best_fitness:
-            best_fitness = max_fitness
-            best_gen = gen
-            best_func = copy.deepcopy(f)
-            print("________________________")
-            print("gen:", gen, ", best_fitness:", best_fitness, ", best_func:")
-            # print(tree.tree_len(best_of_run))
-            best_func.print_tree()
-            # print(best_func.tree_string())
+    #     if max_fitness > best_fitness:
+    #         best_fitness = max_fitness
+    #         best_gen = gen
+    #         best_func = copy.deepcopy(f)
+    #         print("________________________")
+    #         print("gen:", gen, ", best_fitness:", best_fitness, ", best_func:")
+    #         # print(tree.tree_len(best_of_run))
+    #         best_func.print_tree()
+    #         # print(best_func.tree_string())
     
-    check_fitness = fitness(best_func, x_check, y_check)
+    # check_fitness = fitness(best_func, x_check, y_check)
 
-    return best_func, check_fitness
+    # return best_func, check_fitness
     
 
 def dataset2(population, training_df, check_df, TRAINING):
@@ -146,25 +147,28 @@ def main():
     training_df = dataset[1:TRAINING]
     check_df = dataset[TRAINING:]
 
-    equations = []
-    fitnesses = []
-    for trial in range(1, 11):
-        # Create first generation of 1000 trees/functions in a list
-        population= tree.init_population()
+    # tester:
+    dataset1(population, training_df, check_df, TRAINING)
+
+    # equations = []
+    # fitnesses = []
+    # for trial in range(1, 11):
+    #     # Create first generation of 1000 trees/functions in a list
+    #     population= tree.init_population()
     
-        if int(sys.argv[1]) == 1:
-            equation, fitness = dataset1(population, training_df, check_df, TRAINING)
-            equations.append(equation)
-            fitnesses.append(fitness)
-        # else: 
-        #     dataset2(population, training_df, check_df, TRAINING)
+    #     if int(sys.argv[1]) == 1:
+    #         equation, fitness = dataset1(population, training_df, check_df, TRAINING)
+    #         equations.append(equation)
+    #         fitnesses.append(fitness)
+    #     # else: 
+    #     #     dataset2(population, training_df, check_df, TRAINING)
 
-    max_fitness = max(fitnesses)
-    max_fit_i = fitnesses.index(max_fitness)
-    best_equation = equations[max_fit_i]
+    # max_fitness = max(fitnesses)
+    # max_fit_i = fitnesses.index(max_fitness)
+    # best_equation = equations[max_fit_i]
 
-    print('FINAL ANSWER!')
-    best_equation.print_tree()
+    # print('FINAL ANSWER!')
+    # best_equation.print_tree()
 
 if __name__ == "__main__":
     main()
