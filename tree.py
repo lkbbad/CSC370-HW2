@@ -108,15 +108,15 @@ def mutation(parent):
             if new != parent.body:
                 parent.body = new
                 return parent
-    elif parent.left: parent.left.mutation()
-    elif parent.right: parent.right.mutation()
+    elif parent.left: mutation(parent.left)
+    elif parent.right: mutation(parent.right)
     
 def random_subtree(parent2):
     rand = random.uniform(0,1)
     if rand > CROSSOVER_RATE or (not parent2.left and not parent2.right): 
         return parent2.copy()
-    elif parent2.left: return parent2.left.random_subtree()
-    elif parent2.right: return parent2.right.random_subtree()
+    elif parent2.left: return random_subtree(parent2.left)
+    elif parent2.right: return random_subtree(parent2.right)
 
 def crossover(parent1, parent2):
     if parent1.body in operators:
@@ -126,8 +126,8 @@ def crossover(parent1, parent2):
             parent2_subtree = parent2.random_subtree()
             parent1_copy.left = parent2_subtree
             return parent1_copy
-        elif parent1.left: parent1.left.crossover(parent2)
-        elif parent1.right: parent1.right.crossover(parent2)  
+        elif parent1.left: crossover(parent1.left, parent2)
+        elif parent1.right: crossover(parent1.right, parent2)  
             
 def tree_len(tree):
     if tree is None:
