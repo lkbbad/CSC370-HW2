@@ -13,7 +13,7 @@ import math
 ##  - Fitness function - why are we getting the same fitness for multiple functions across generations?
 ##  - Should fitness really be between 0 and 1?
 
-GENERATIONS = 1000
+GENERATIONS = 50
 POP_SIZE = 500
 CROSSOVER_PERCENT = 0.9  # crossover rate
 
@@ -27,9 +27,9 @@ def fitness(func, x_training, y_training):
     for i in range(int(len(x_training)/2)): # NOTE: RUNNING ON HALF DATA
         diff_squared = (abs(func.compute_tree(x_training[i]) - y_training[i]))**2
         fitness += diff_squared
-
     size = tree.tree_len(func)
-    fitness = (fitness * size) /len(x_training)
+    # fitness = (fitness * size) /len(x_training)
+    fitness = fitness / len(x_training)
 
     if not (math.isnan(fitness)):
         return 1.0 / fitness
@@ -77,14 +77,19 @@ def dataset1(population, training_df, check_df, TRAINING):
         roulette = make_wheel(fitnesses)
         for j in range(xo_parent_num):
             xo_parent1 = fitness_prop_selection(fitnesses, roulette)
+            xo_parent1_copy = xo_parent1.copy()
             xo_parent2 = fitness_prop_selection(fitnesses, roulette)
             xo_parent1.crossover(xo_parent2)
-            nextgen_population.append(xo_parent1)
+
+            xo_parent1.fitness = fitness(xo_parent1, x_training, y_training)
+            xo_parent1_copy.fitness = fitness(xo_parent1_copy, x_training, y_training)
+            if (xo_parent1.fitness < xo_parent1_copy.fitness):
+                nextgen_population.append(xo_parent1_copy)
+            else: nextgen_population.append(xo_parent1)
         for k in range(mut_parent_num):
             mut_parent = fitness_prop_selection(fitnesses, roulette)
             mut_parent.mutation()
             nextgen_population.append(mut_parent)
-        # print("finished pop")
 
         max_fitness = 0
         for func in nextgen_population:
@@ -105,7 +110,7 @@ def dataset1(population, training_df, check_df, TRAINING):
             best_gen = gen
             best_func = copy.deepcopy(f)
             print("________________________")
-            print("gen:", gen, ", best_fitness:", round(best_fitness,3), ", best_func:")
+            print("gen:", gen, ", best_fitness:", best_fitness, ", best_func:")
             # print(tree.tree_len(best_of_run))
             best_func.print_tree()
             # print(best_func.tree_string())
