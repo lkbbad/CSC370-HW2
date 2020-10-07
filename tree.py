@@ -94,46 +94,40 @@ class Tree:
                 return float("inf")
         elif self.body == 'x': return x
         else: return self.body
-        
-    def mutation(self):
-        rand = random.uniform(0,1)
-        if rand > PROB_MUTATION or (not self.left and not self.right): # mutate at this node
-            if self.body in operators:
-                new = random.choice(operators)
-                if new != self.body:
-                    self.body = new
-            else: 
-                new = random.choice(terminals)
-                if new != self.body:
-                    self.body = new
-        elif self.left: self.left.mutation()
-        elif self.right: self.right.mutation()
+
+def mutation(parent):
+    rand = random.uniform(0,1)
+    if rand > PROB_MUTATION or (not parent.left and not parent.right): # mutate at this node
+        if parent.body in operators:
+            new = random.choice(operators)
+            if new != parent.body:
+                parent.body = new
+                return parent
+        else: 
+            new = random.choice(terminals)
+            if new != parent.body:
+                parent.body = new
+                return parent
+    elif parent.left: parent.left.mutation()
+    elif parent.right: parent.right.mutation()
     
-    def random_subtree(self):
+def random_subtree(parent2):
+    rand = random.uniform(0,1)
+    if rand > CROSSOVER_RATE or (not parent2.left and not parent2.right): 
+        return parent2.copy()
+    elif parent2.left: return parent2.left.random_subtree()
+    elif parent2.right: return parent2.right.random_subtree()
+
+def crossover(parent1, parent2):
+    if parent1.body in operators:
         rand = random.uniform(0,1)
-        if rand > CROSSOVER_RATE or (not self.left and not self.right): 
-            return self.copy()
-        elif self.left: return self.left.random_subtree()
-        elif self.right: return self.right.random_subtree()
-
-    def crossover(self, parent2):
-        if self.body in operators:
-            rand = random.uniform(0,1)
-            if rand > CROSSOVER_RATE or (not self.left and not self.right): # xo at this node
-                # print("parent1 before")
-                # self.print_tree()
-                # print("parent2 before")
-                # parent2.print_tree()
-
-                # print("subtree to cross")
-                parent2_subtree = parent2.random_subtree()
-                self.left = parent2_subtree
-
-                # print("parent1 after")
-                # self.print_tree()
-
-            elif self.left: self.left.crossover(parent2)
-            elif self.right: self.right.crossover(parent2)
+        if rand > CROSSOVER_RATE or (not parent1.left and not parent1.right): # xo at this node
+            parent1_copy = parent1.copy()
+            parent2_subtree = parent2.random_subtree()
+            parent1_copy.left = parent2_subtree
+            return parent1_copy
+        elif parent1.left: parent1.left.crossover(parent2)
+        elif parent1.right: parent1.right.crossover(parent2)  
             
 def tree_len(tree):
     if tree is None:

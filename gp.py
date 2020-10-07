@@ -13,6 +13,14 @@ import math
 ##  - Fitness function - why are we getting the same fitness for multiple functions across generations?
 ##  - Should fitness really be between 0 and 1?
 
+## ACTION PLAN:
+##  - Converge an equation please
+##  - 
+##
+##
+##
+##
+
 GENERATIONS = 50
 POP_SIZE = 500
 CROSSOVER_PERCENT = 0.9  # crossover rate
@@ -24,7 +32,7 @@ def set_up_data(dataset):
 
 def fitness(func, x_training, y_training):
     fitness = 0.0
-    for i in range(int(len(x_training)/2)): # NOTE: RUNNING ON HALF DATA
+    for i in range(500): # NOTE: RUNNING ON HALF DATA
         diff_squared = (abs(func.compute_tree(x_training[i]) - y_training[i]))**2
         fitness += diff_squared
     size = tree.tree_len(func)
@@ -77,19 +85,17 @@ def dataset1(population, training_df, check_df, TRAINING):
         roulette = make_wheel(fitnesses)
         for j in range(xo_parent_num):
             xo_parent1 = fitness_prop_selection(fitnesses, roulette)
-            xo_parent1_copy = xo_parent1.copy()
             xo_parent2 = fitness_prop_selection(fitnesses, roulette)
-            xo_parent1.crossover(xo_parent2)
-
+            xo_child = tree.crossover(xo_parent1, xo_parent2)
+            xo_child.fitness = fitness(xo_child, x_training, y_training)
             xo_parent1.fitness = fitness(xo_parent1, x_training, y_training)
-            xo_parent1_copy.fitness = fitness(xo_parent1_copy, x_training, y_training)
-            if (xo_parent1.fitness < xo_parent1_copy.fitness):
-                nextgen_population.append(xo_parent1_copy)
-            else: nextgen_population.append(xo_parent1)
+            if (xo_child.fitness < xo_parent1.fitness):
+                nextgen_population.append(xo_parent1)
+            else: nextgen_population.append(xo_child)
         for k in range(mut_parent_num):
             mut_parent = fitness_prop_selection(fitnesses, roulette)
-            mut_parent.mutation()
-            nextgen_population.append(mut_parent)
+            mut_child = tree.mutation(mut_parent)
+            nextgen_population.append(mut_child)
 
         max_fitness = 0
         for func in nextgen_population:
@@ -114,10 +120,11 @@ def dataset1(population, training_df, check_df, TRAINING):
             # print(tree.tree_len(best_of_run))
             best_func.print_tree()
             # print(best_func.tree_string())
-            print(best_func.compute_tree(-0.66), " should be 18")
-            print(best_func.compute_tree(2.99), " should be 5") 
+    
+    check_fitness = fitness(best_func, x_check, y_check)
 
-        if best_fitness >= 1: break
+    return best_func, check_fitness
+    
 
 def dataset2(population, training_df, check_df, TRAINING):
     x1_training = training_df['x1'].tolist()
@@ -130,8 +137,6 @@ def dataset2(population, training_df, check_df, TRAINING):
     y_check = check_df['f(x1,x2,x3)'].tolist()
 
 def main():
-    # Create first generation of 1000 trees/functions in a list
-    population= tree.init_population()
 
     # read in dataset1 or dataset2 based on command line argument 1 or 2
     dataset = set_up_data(int(sys.argv[1]))
@@ -140,11 +145,26 @@ def main():
  
     training_df = dataset[1:TRAINING]
     check_df = dataset[TRAINING:]
+
+    equations = []
+    fitnesses = []
+    for trial in range(1, 11):
+        # Create first generation of 1000 trees/functions in a list
+        population= tree.init_population()
     
-    if int(sys.argv[1]) == 1:
-        dataset1(population, training_df, check_df, TRAINING)
-    else: 
-        dataset2(population, training_df, check_df, TRAINING)
+        if int(sys.argv[1]) == 1:
+            equation, fitness = dataset1(population, training_df, check_df, TRAINING)
+            equations.append(equation)
+            fitnesses.append(fitness)
+        # else: 
+        #     dataset2(population, training_df, check_df, TRAINING)
+
+    max_fitness = max(fitnesses)
+    max_fit_i = fitnesses.index(max_fitness)
+    best_equation = equations[max_fit_i]
+
+    print('FINAL ANSWER!')
+    best_equation.print_tree()
 
 if __name__ == "__main__":
     main()
