@@ -17,7 +17,7 @@ def div(x, y):
     except ZeroDivisionError:
         return 0
 operators = [add, sub, mul, div]
-terminals = [-2, -1, 0, 1, 2, 'x']
+terminals = [-2, -1, 1, 2, 'x']
 
 class Tree:
     def __init__(self, body = None, left = None, right = None):
@@ -156,9 +156,9 @@ def init_population(): # ramped half-and-half
     return population
 
 def main():
-    t1 = Tree()
-    t2 = Tree()
-    t1.random_tree(grow = True, max_depth = MAX_DEPTH, depth = 0)
+    # t1 = Tree()
+    # t2 = Tree()
+    # t1.random_tree(grow = True, max_depth = MAX_DEPTH, depth = 0)
 
 
 if __name__ == "__main__":

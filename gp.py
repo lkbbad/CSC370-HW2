@@ -15,14 +15,9 @@ import math
 
 # ACTION PLAN:
 # - Converge an equation please
-# -
-##
-##
-##
-##
 
 GENERATIONS = 50
-POP_SIZE = 1000
+POP_SIZE = 500
 CROSSOVER_PERCENT = 0.9  # crossover rate
 DUPLICATE_PERCENT = 0.09
 MUTATE_PERCENT = 0.01
@@ -41,8 +36,8 @@ def fitness(func, x_training, y_training):
         diff_squared = (abs(func.compute_tree(x_training[i]) - y_training[i]))**2
         fitness += diff_squared
     size = tree.tree_len(func)
-    # fitness = (fitness * size) /len(x_training)
-    fitness = fitness / len(x_training)
+    fitness = (fitness * size) /len(x_training)
+    # fitness = fitness / len(x_training)
 
     if not (math.isnan(fitness)):
         return 1.0 / fitness
@@ -72,7 +67,6 @@ def dataset1(population, training_df, check_df, TRAINING):
     current_gen = []
     best_func = None
     best_fitness = 0
-    best_gen = 0
 
     x_training = training_df['x'].tolist()
     y_training = training_df['f(x)'].tolist()
@@ -142,15 +136,15 @@ def dataset1(population, training_df, check_df, TRAINING):
     return best_func, check_fitness
 
 
-# def dataset2(population, training_df, check_df, TRAINING):
-#     x1_training = training_df['x1'].tolist()
-#     x2_training = training_df['x2'].tolist()
-#     x3_training = training_df['x3'].tolist()
-#     y_training = training_df['f(x1,x2,x3)'].tolist()
-#     x1_check = check_df['x1'].tolist()
-#     x2_check = check_df['x2'].tolist()
-#     x3_check = check_df['x3'].tolist()
-#     y_check = check_df['f(x1,x2,x3)'].tolist()
+def dataset2(population, training_df, check_df, TRAINING):
+    x1_training = training_df['x1'].tolist()
+    x2_training = training_df['x2'].tolist()
+    x3_training = training_df['x3'].tolist()
+    y_training = training_df['f(x1,x2,x3)'].tolist()
+    x1_check = check_df['x1'].tolist()
+    x2_check = check_df['x2'].tolist()
+    x3_check = check_df['x3'].tolist()
+    y_check = check_df['f(x1,x2,x3)'].tolist()
 
 def main():
 
@@ -173,12 +167,11 @@ def main():
         population = tree.init_population()
 
         if int(sys.argv[1]) == 1:
-            equation, fitness = dataset1(
-                population, training_df, check_df, TRAINING)
+            equation, fitness = dataset1(population, training_df, check_df, TRAINING)
             equations.append(equation)
             fitnesses.append(fitness)
-        # else:
-        #     dataset2(population, training_df, check_df, TRAINING)
+        else:
+            dataset2(population, training_df, check_df, TRAINING)
 
     max_fitness = max(fitnesses)
     max_fit_i = fitnesses.index(max_fitness)
