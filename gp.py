@@ -67,6 +67,7 @@ def dataset1(population, training_df, check_df, TRAINING):
     current_gen = []
     best_func = None
     best_fitness = 0
+    best_gen = 0
 
     x_training = training_df['x'].tolist()
     y_training = training_df['f(x)'].tolist()
@@ -123,12 +124,12 @@ def dataset1(population, training_df, check_df, TRAINING):
 
         if max_fitness > best_fitness:
             best_fitness = max_fitness
-            best_gen = gen
+            # best_gen = gen
             best_func = copy.deepcopy(f)
-            print("________________________")
-            print("gen:", gen, ", best_fitness:", best_fitness, ", best_func:")
+            # print("________________________")
+            # print("gen:", gen, ", best_fitness:", best_fitness, ", best_func:")
             # print(tree.tree_len(best_of_run))
-            best_func.print_tree()
+            # best_func.print_tree()
             # print(best_func.tree_string())
         current_gen = nextgen_population
     check_fitness = fitness(best_func, x_check, y_check)
@@ -162,7 +163,7 @@ def main():
 
     equations = []
     fitnesses = []
-    for trial in range(1, 11):
+    for _ in range(1, 11):
         # Create first generation of 1000 trees/functions in a list
         population = tree.init_population()
 

@@ -145,11 +145,11 @@ def tree_len(tree):
 def init_population(): # ramped half-and-half
     population = []
     for md in range(2, MAX_DEPTH - 1):
-        for i in range(int(POP_SIZE/ 2)):
+        for _ in range(int(POP_SIZE/ 2)):
             t = Tree()
             t.random_tree(grow = True, max_depth = md) # grow
             population.append(t) 
-        for i in range(int(POP_SIZE/ 2)):
+        for _ in range(int(POP_SIZE/ 2)):
             t = Tree()
             t.random_tree(grow = False, max_depth = md) # full
             population.append(t) 
