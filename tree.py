@@ -156,9 +156,9 @@ def init_population(): # ramped half-and-half
     return population
 
 def main():
-    # t1 = Tree()
-    # t2 = Tree()
-    # t1.random_tree(grow = True, max_depth = MAX_DEPTH, depth = 0)
+    t1 = Tree()
+    t2 = Tree()
+    t1.random_tree(grow = True, max_depth = MAX_DEPTH, depth = 0)
 
 
 if __name__ == "__main__":
