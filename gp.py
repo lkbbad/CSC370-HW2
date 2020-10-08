@@ -18,7 +18,7 @@ import math
 # - Converge an equation please
 
 GENERATIONS = 50
-POP_SIZE = 100
+POP_SIZE = 500
 CROSSOVER_PERCENT = 0.9  # crossover rate
 DUPLICATE_PERCENT = 0.09
 MUTATE_PERCENT = 0.01
@@ -43,9 +43,9 @@ def fitness1(func, x_training, y_training, fitness_indexes):
     else:
         return float("inf")
 
-def fitness2(func, x1_training, x2_training, x3_training, y_training):
+def fitness2(func, x1_training, x2_training, x3_training, y_training, fitness_indexes):
     fitness = 0.0
-    for i in range(500):  # NOTE: RUNNING ON HALF DATA
+    for i in fitness_indexes:  # NOTE: RUNNING ON HALF DATA
         diff_squared = (abs(func.compute_tree(x1_training[i], x2_training[i], x3_training[i]) - y_training[i]))**2
         fitness += diff_squared
     # size = tree2.tree_len(func)
@@ -84,10 +84,9 @@ def dataset1(population, training_df, check_df, TRAINING):
     x_check = check_df['x'].tolist()
     y_check = check_df['f(x)'].tolist()
 
-
     fitness_indexes = []
-    for i in range(500):
-        fitness_indexes.append(random.randint(0, len(x_training)))
+    for _ in range(500):
+        fitness_indexes.append(random.randint(0, len(x_training)-1))
     # Find fitness for each function in first generation
     for func in population:
         # func.print_tree()
@@ -96,9 +95,10 @@ def dataset1(population, training_df, check_df, TRAINING):
             current_gen.append(func)
 
     for gen in range(GENERATIONS):
-    
-        for i in range(500):
-            fitness_indexes.append(random.randint(0, len(x_training)))
+        fitness_indexes = []
+        for _ in range(500):
+            fitness_indexes.append(random.randint(0, len(x_training)-1))
+        # print(fitness_indexes)
         # print("starting gen")
         nextgen_population = []
         xo_parent_num = int(POP_SIZE * CROSSOVER_PERCENT)
@@ -151,7 +151,10 @@ def dataset1(population, training_df, check_df, TRAINING):
             # best_func.print_tree()
             # print(best_func.tree_string())
         current_gen = nextgen_population
-    check_fitness = fitness1(best_func, x_check, y_check)
+    fitness_indexes = []
+    for _ in range(500):
+        fitness_indexes.append(random.randint(0, len(x_check)-1))
+    check_fitness = fitness1(best_func, x_check, y_check, fitness_indexes)
 
     return best_func, check_fitness
 
@@ -170,14 +173,21 @@ def dataset2(population, training_df, check_df, TRAINING):
     x3_check = check_df['x3'].tolist()
     y_check = check_df['f(x1,x2,x3)'].tolist()
 
+    fitness_indexes = []
+    for i in range(500):
+        fitness_indexes.append(random.randint(0, len(x1_training)-1))
+
     # Find fitness for each function in first generation
     for func in population:
         # func.print_tree()
-        func.fitness = fitness2(func, x1_training, x2_training, x3_training, y_training)
+        func.fitness = fitness2(func, x1_training, x2_training, x3_training, y_training, fitness_indexes)
         if func.fitness != float("inf") and not math.isnan(func.fitness) and func not in current_gen:
             current_gen.append(func)
 
     for gen in range(GENERATIONS):
+
+        for i in range(500):
+            fitness_indexes.append(random.randint(0, len(x1_training)-1))
         # print("starting gen")
         nextgen_population = []
         xo_parent_num = int(POP_SIZE * CROSSOVER_PERCENT)
@@ -188,8 +198,8 @@ def dataset2(population, training_df, check_df, TRAINING):
             xo_parent1 = fitness_prop_selection(current_gen, roulette)
             xo_parent2 = fitness_prop_selection(current_gen, roulette)
             xo_child = tree2.crossover(xo_parent1, xo_parent2)
-            xo_child.fitness = fitness2(xo_child, x1_training, x2_training, x3_training, y_training)
-            xo_parent1.fitness = fitness2(xo_parent1, x1_training, x2_training, x3_training, y_training)
+            xo_child.fitness = fitness2(xo_child, x1_training, x2_training, x3_training, y_training, fitness_indexes)
+            xo_parent1.fitness = fitness2(xo_parent1, x1_training, x2_training, x3_training, y_training, fitness_indexes)
             if (xo_child.fitness < xo_parent1.fitness):
                 nextgen_population.append(xo_parent1)
             elif(xo_child.fitness < xo_parent2.fitness):
@@ -206,7 +216,7 @@ def dataset2(population, training_df, check_df, TRAINING):
         max_fitness = 0
         for func in nextgen_population:
             # func.print_tree()
-            func.fitness = fitness2(func, x1_training, x2_training, x3_training, y_training)
+            func.fitness = fitness2(func, x1_training, x2_training, x3_training, y_training, fitness_indexes)
             if func.fitness != float("inf"):
                     # print(func.fitness)
                 # fitnesses.append(func)
@@ -227,7 +237,11 @@ def dataset2(population, training_df, check_df, TRAINING):
             # best_func.print_tree()
             # print(best_func.tree_string())
         current_gen = nextgen_population
-    check_fitness = fitness2(best_func, x1_check, x2_check, x3_check, y_check)
+
+    for i in range(500):
+        fitness_indexes.append(random.randint(0, len(x1_check)-1))
+
+    check_fitness = fitness2(best_func, x1_check, x2_check, x3_check, y_check, fitness_indexes)
 
     return best_func, check_fitness
 
