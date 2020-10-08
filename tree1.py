@@ -2,7 +2,7 @@ import operator
 import random
 import copy
 
-POP_SIZE = 1000   # population size
+POP_SIZE = 100  # population size
 MIN_DEPTH = 2    # minimal initial random tree depth
 MAX_DEPTH = 4   # maximal initial random tree depth
 PROB_MUTATION = 0.75  # probability of perfoming a mutation
@@ -157,8 +157,10 @@ def init_population(): # ramped half-and-half
 
 def main():
     t1 = Tree()
-    t2 = Tree()
     t1.random_tree(grow = True, max_depth = MAX_DEPTH, depth = 0)
+    
+    t1.print_tree()
+    print(t1.compute_tree(1))
 
 if __name__ == "__main__":
     main()
