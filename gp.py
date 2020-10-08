@@ -88,7 +88,7 @@ def dataset1(population, training_df, check_df, TRAINING):
     for func in population:
         # func.print_tree()
         func.fitness = fitness1(func, x_training, y_training)
-        if func.fitness != float("inf"):
+        if func.fitness != float("inf") and not math.isnan(func.fitness) and func not in current_gen:
             current_gen.append(func)
 
     for gen in range(GENERATIONS):
@@ -165,7 +165,7 @@ def dataset2(population, training_df, check_df, TRAINING):
     for func in population:
         # func.print_tree()
         func.fitness = fitness2(func, x1_training, x2_training, x3_training, y_training)
-        if func.fitness != float("inf"):
+        if func.fitness != float("inf") and not math.isnan(func.fitness) and func not in current_gen:
             current_gen.append(func)
 
     for gen in range(GENERATIONS):
