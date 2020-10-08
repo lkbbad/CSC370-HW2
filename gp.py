@@ -17,7 +17,7 @@ import math
 # ACTION PLAN:
 # - Converge an equation please
 
-GENERATIONS = 50
+GENERATIONS = 100
 POP_SIZE = 1000
 CROSSOVER_PERCENT = 0.9  # crossover rate
 DUPLICATE_PERCENT = 0.09
@@ -259,6 +259,7 @@ def main():
 
     print('FINAL ANSWER!')
     best_equation.print_tree()
+    print(best_equation.fitness)
 
 
 if __name__ == "__main__":
