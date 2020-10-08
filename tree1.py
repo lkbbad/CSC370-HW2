@@ -2,7 +2,7 @@ import operator
 import random
 import copy
 
-POP_SIZE = 5   # population size
+POP_SIZE = 500   # population size
 MIN_DEPTH = 2    # minimal initial random tree depth
 MAX_DEPTH = 4   # maximal initial random tree depth
 PROB_MUTATION = 0.75  # probability of perfoming a mutation

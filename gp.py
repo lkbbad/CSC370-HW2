@@ -23,7 +23,6 @@ CROSSOVER_PERCENT = 0.9  # crossover rate
 DUPLICATE_PERCENT = 0.09
 MUTATE_PERCENT = 0.01
 
-
 def set_up_data(dataset):
     if dataset == 1:
         return read_in.dataset1()
@@ -36,7 +35,7 @@ def fitness1(func, x_training, y_training):
         diff_squared = (abs(func.compute_tree(x_training[i]) - y_training[i]))**2
         fitness += diff_squared
     size = tree1.tree_len(func)
-    fitness = (fitness * size) /len(x_training)
+    fitness = (fitness * (1.1 ** size)) /len(x_training)
     # fitness = fitness / len(x_training)
 
     if not (math.isnan(fitness)):
@@ -50,8 +49,8 @@ def fitness2(func, x1_training, x2_training, x3_training, y_training):
         diff_squared = (abs(func.compute_tree(x1_training[i], x2_training[i], x3_training[i]) - y_training[i]))**2
         fitness += diff_squared
     size = tree2.tree_len(func)
-    fitness = (fitness * size) /len(x1_training)
-    # fitness = fitness / len(x_training)
+    # fitness = (fitness * size) /len(x1_training)
+    fitness = fitness / len(x1_training)
 
     if not (math.isnan(fitness)):
         return 1.0 / fitness
@@ -90,7 +89,7 @@ def dataset1(population, training_df, check_df, TRAINING):
     # Find fitness for each function in first generation
     for func in population:
         # func.print_tree()
-        func.fitness = fitness(func, x_training, y_training)
+        func.fitness = fitness1(func, x_training, y_training)
         if func.fitness != float("inf"):
             current_gen.append(func)
 
@@ -141,7 +140,7 @@ def dataset1(population, training_df, check_df, TRAINING):
             best_func = copy.deepcopy(f)
             # print("________________________")
             # print("gen:", gen, ", best_fitness:", best_fitness, ", best_func:")
-            # print(tree.tree_len(best_of_run))
+            # # print(tree.tree_len(best_of_run))
             # best_func.print_tree()
             # print(best_func.tree_string())
         current_gen = nextgen_population
@@ -202,7 +201,8 @@ def dataset2(population, training_df, check_df, TRAINING):
         for func in nextgen_population:
             # func.print_tree()
             func.fitness = fitness2(func, x1_training, x2_training, x3_training, y_training)
-            # print("fitness = ", func.fitness)
+            print("fitness = ", func.fitness)
+            exit
             if func.fitness != float("inf"):
                     # print(func.fitness)
                 # fitnesses.append(func)
