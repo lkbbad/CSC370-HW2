@@ -2,7 +2,7 @@ import operator
 import random
 import copy
 
-POP_SIZE = 500   # population size
+POP_SIZE = 1000   # population size
 MIN_DEPTH = 2    # minimal initial random tree depth
 MAX_DEPTH = 4   # maximal initial random tree depth
 PROB_MUTATION = 0.75  # probability of perfoming a mutation
@@ -18,7 +18,6 @@ def div(x, y):
         return 0
 operators = [add, sub, mul, div]
 terminals = [-2, -1, 1, 2, 'x']
-
 
 class Tree:
     def __init__(self, body = None, left = None, right = None):
@@ -160,7 +159,6 @@ def main():
     t1 = Tree()
     t2 = Tree()
     t1.random_tree(grow = True, max_depth = MAX_DEPTH, depth = 0)
-
 
 if __name__ == "__main__":
     main()

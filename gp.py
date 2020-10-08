@@ -18,7 +18,7 @@ import math
 # - Converge an equation please
 
 GENERATIONS = 50
-POP_SIZE = 500
+POP_SIZE = 1000
 CROSSOVER_PERCENT = 0.9  # crossover rate
 DUPLICATE_PERCENT = 0.09
 MUTATE_PERCENT = 0.01
@@ -35,7 +35,7 @@ def fitness1(func, x_training, y_training):
         diff_squared = (abs(func.compute_tree(x_training[i]) - y_training[i]))**2
         fitness += diff_squared
     size = tree1.tree_len(func)
-    fitness = (fitness * (1.1 ** size)) /len(x_training)
+    fitness = (fitness * (1.1 ** size)) / len(x_training)
     # fitness = fitness / len(x_training)
 
     if not (math.isnan(fitness)):
@@ -48,7 +48,7 @@ def fitness2(func, x1_training, x2_training, x3_training, y_training):
     for i in range(500):  # NOTE: RUNNING ON HALF DATA
         diff_squared = (abs(func.compute_tree(x1_training[i], x2_training[i], x3_training[i]) - y_training[i]))**2
         fitness += diff_squared
-    size = tree2.tree_len(func)
+    # size = tree2.tree_len(func)
     # fitness = (fitness * size) /len(x1_training)
     fitness = fitness / len(x1_training)
 
@@ -64,7 +64,6 @@ def make_wheel(fitnesses):
     roulette = {f: (f.fitness / sum_fitness) for f in fitnesses}
     return roulette
 
-
 def fitness_prop_selection(fitnesses, roulette):
     max_ = sum(roulette.values())
     pick = random.uniform(0, max_)
@@ -73,7 +72,6 @@ def fitness_prop_selection(fitnesses, roulette):
         current += fitness
         if current > pick:
             return tree
-
 
 def dataset1(population, training_df, check_df, TRAINING):
     current_gen = []
@@ -148,7 +146,6 @@ def dataset1(population, training_df, check_df, TRAINING):
 
     return best_func, check_fitness
 
-
 def dataset2(population, training_df, check_df, TRAINING):
     current_gen = []
     best_func = None
@@ -201,8 +198,6 @@ def dataset2(population, training_df, check_df, TRAINING):
         for func in nextgen_population:
             # func.print_tree()
             func.fitness = fitness2(func, x1_training, x2_training, x3_training, y_training)
-            print("fitness = ", func.fitness)
-            exit
             if func.fitness != float("inf"):
                     # print(func.fitness)
                 # fitnesses.append(func)
@@ -253,8 +248,11 @@ def main():
         else:
             # Create first generation of 1000 trees/functions in a list
             population = tree2.init_population()
-            dataset2(population, training_df, check_df, TRAINING)
+            equation, fitness = dataset2(population, training_df, check_df, TRAINING)
+            equations.append(equation)
+            fitnesses.append(fitness)
 
+    
     max_fitness = max(fitnesses)
     max_fit_i = fitnesses.index(max_fitness)
     best_equation = equations[max_fit_i]
