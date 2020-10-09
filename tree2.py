@@ -86,13 +86,13 @@ class Tree:
         left_sum = self.left.tree_string()
         right_sum = self.right.tree_string()
         if self.body == add:
-            return '(' + str(left_sum) + ')' + '+' + '(' + str(right_sum) + ')'
+            return str(left_sum) +  '+' + str(right_sum)
         elif self.body == sub:
-            return '(' + str(left_sum) + ')' + '-' + '(' + str(right_sum) + ')'
+            return str(left_sum) + '-' + str(right_sum) 
         elif self.body == mul:
-            return '(' + str(left_sum) + ')' + '*' + '(' + str(right_sum) + ')'
+            return str(left_sum) + '*' + str(right_sum) 
         else:
-            return '(' + str(left_sum) + ')' + '/' + '(' + str(right_sum) + ')'
+            return str(left_sum) + '/' + str(right_sum)
 
     def compute_tree(self, x1, x2, x3):
         if (self.body in operators):

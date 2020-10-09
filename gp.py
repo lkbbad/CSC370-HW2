@@ -6,8 +6,8 @@ import random
 import copy
 import math
 
-GENERATIONS = 51
-POP_SIZE = 1000
+GENERATIONS = 5
+POP_SIZE = 5
 CROSSOVER_PERCENT = 0.9  
 DUPLICATE_PERCENT = 0.1
 MUTATE_PERCENT = 0.001
@@ -28,7 +28,7 @@ def fitness1(func, x_training, y_training):
     """
     fitness = 0.0
     depth = tree1.tree_depth(func)
-    if depth> 10: # if deeper than 10, fitness is 0 and the tree will not become selected
+    if depth > 10: # if deeper than 10, fitness is 0 and the tree will not become selected
         return 0
     for i in range(len(x_training)):
         diff_squared = (abs(func.compute_tree(x_training[i]) - y_training[i]))**2
@@ -46,10 +46,12 @@ def fitness2(func, x1_training, x2_training, x3_training, y_training):
     Fitness function for dataset2: mean squared error, includes penalty factor for deeper trees.
     """
     fitness = 0.0
+    depth = tree2.tree_depth(func)
+    if depth > 10: # if deeper than 10, fitness is 0 and the tree will not become selected
+        return 0
     for i in range(len(x1_training)):  
         diff_squared = (abs(func.compute_tree(x1_training[i], x2_training[i], x3_training[i]) - y_training[i]))**2
         fitness += diff_squared
-    depth = tree2.tree_depth(func)
     fitness = (fitness* 1.05**depth) / len(x1_training)
 
     if not (math.isnan(fitness)):
@@ -131,7 +133,7 @@ def dataset1(population, training_df, check_df, TRAINING):
             xo_parent2 = fitness_prop_selection(current_gen, roulette)
             xo_child, xo_child2 = tree1.crossover(xo_parent1, xo_parent2)
             xo_child.fitness = fitness1(xo_child, x_training, y_training)
-            xo_child2.fitness = fitness1(xo_child, x_training, y_training)
+            xo_child2.fitness = fitness1(xo_child2, x_training, y_training)
             # Select the most fit child
             if xo_child2.fitness > xo_child.fitness:
                 xo_child = xo_child2
@@ -194,20 +196,22 @@ def dataset2(population, training_df, check_df, TRAINING):
         func.fitness = fitness2(func, x1_training, x2_training, x3_training, y_training)
         # Initial grooming of population for "bad" individuals
         if func.fitness != 0 and not math.isnan(func.fitness) and func not in current_gen:
-            if func.fitness > best_fitness:
-                best_func = func
-                best_fitness = func.fitness
-            current_gen.append(func)
-
-    while(len(current_gen) < POP_SIZE):
-        population = tree1.init_population(2)
-        for func in population:
-            func.fitness = fitness2(func, x1_training, x2_training, x3_training, y_training)
-            if func.fitness != 0 and not math.isnan(func.fitness) and func not in current_gen:
-                current_gen.append(func)
+            if (func.tree_string().find('x1') != -1) and (func.tree_string().find('x2') != -1) and (func.tree_string().find('x3') != -1):
                 if func.fitness > best_fitness:
                     best_func = func
                     best_fitness = func.fitness
+                current_gen.append(func)
+
+    while(len(current_gen) < POP_SIZE):
+        population = tree2.init_population(2)
+        for func in population:
+            func.fitness = fitness2(func, x1_training, x2_training, x3_training, y_training)
+            if func.fitness != 0 and not math.isnan(func.fitness) and func not in current_gen:
+                if (func.tree_string().find('x1') != -1) and (func.tree_string().find('x2') != -1) and (func.tree_string().find('x3') != -1):
+                    current_gen.append(func)
+                    if func.fitness > best_fitness:
+                        best_func = func
+                        best_fitness = func.fitness
     print(best_fitness)
     best_func.print_tree()
 
@@ -224,7 +228,7 @@ def dataset2(population, training_df, check_df, TRAINING):
             xo_parent2 = fitness_prop_selection(current_gen, roulette)
             xo_child, xo_child2 = tree1.crossover(xo_parent1, xo_parent2)
             xo_child.fitness = fitness2(xo_child, x1_training, x2_training, x3_training, y_training)
-            xo_child2.fitness = fitness2(xo_child, x1_training, x2_training, x3_training, y_training)
+            xo_child2.fitness = fitness2(xo_child2, x1_training, x2_training, x3_training, y_training)
             # Select the most fit child
             if xo_child2.fitness > xo_child.fitness:
                 xo_child = xo_child2
@@ -242,7 +246,7 @@ def dataset2(population, training_df, check_df, TRAINING):
         for _ in range(mut_parent_num):
             # Select parents for mutation
             mut_parent = fitness_prop_selection(current_gen, roulette)
-            mut_child = tree1.mutation(mut_parent)
+            mut_child = tree2.mutation(mut_parent)
             nextgen_population.append(mut_child)
         for _ in range(dupl_parent_num):
             # Select individuals for duplication
