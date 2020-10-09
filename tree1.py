@@ -100,10 +100,8 @@ class Tree:
                 return self.body(self.left.compute_tree(x), self.right.compute_tree(x))
             except:
                 return float("inf")
-        elif self.body == 'x':
-            return x
-        else:
-            return self.body
+        elif self.body == 'x': return x
+        else: return self.body
 
 
 def mutation(parent):

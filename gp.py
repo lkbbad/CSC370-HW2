@@ -286,7 +286,7 @@ def main():
         else:
             # Create first generation of functions 
             population = tree2.init_population(POP_SIZE)
-            equation, fitness = dataset1(population, training_df, check_df, TRAINING)
+            equation, fitness = dataset2(population, training_df, check_df, TRAINING)
             equations.append(equation)
             fitnesses.append(fitness)
 

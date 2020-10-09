@@ -94,16 +94,16 @@ class Tree:
         else:
             return '(' + str(left_sum) + ')' + '/' + '(' + str(right_sum) + ')'
 
-    def compute_tree(self, x):
+    def compute_tree(self, x1, x2, x3):
         if (self.body in operators):
             try:
-                return self.body(self.left.compute_tree(x), self.right.compute_tree(x))
+                return self.body(self.left.compute_tree(x1, x2, x3), self.right.compute_tree(x1, x2, x3))
             except:
                 return float("inf")
-        elif self.body == 'x':
-            return x
-        else:
-            return self.body
+        elif self.body == 'x1': return x1
+        elif self.body == 'x2': return x2
+        elif self.body == 'x3': return x3
+        else: return self.body
 
 
 def mutation(parent):
