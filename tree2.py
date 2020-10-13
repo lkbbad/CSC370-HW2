@@ -1,3 +1,8 @@
+"""
+Tree Class for dataset2.
+Authors: Caroline Sigl and Lindy Bustabad
+"""
+
 import operator
 import random
 import copy
@@ -5,7 +10,7 @@ import copy
 MIN_DEPTH = 2    # minimal initial random tree depth
 MAX_DEPTH = 4   # maximal initial random tree depth
 PROB_MUTATION = 0.75  # probability of perfoming a mutation
-CROSSOVER_RATE = 0.8  # crossover rate
+PROB_CROSSOVER = 0.8  # probability of performing a crossover at a node
 
 
 def add(x, y): return x + y
@@ -15,6 +20,7 @@ def sub(x, y): return x - y
 def mul(x, y): return x * y
 
 def div(x, y):
+    # Protected division
     try:
         return x/y
     except ZeroDivisionError:
@@ -29,6 +35,7 @@ class Tree:
         self.left = left
         self.right = right
         self.fitness = 0
+        self.mse = 0
 
     def get_left(self):
         return self.left
@@ -45,13 +52,19 @@ class Tree:
     def __str__(self):
         return str(self.body)
 
-    def node_label(self):  # string label
+    def node_label(self):  
+        """
+        Returns label for node in tree.
+        """
         if (self.body in operators):
             return self.body.__name__
         else:
             return str(self.body)
 
-    def print_tree(self, prefix=""):  # textual printout
+    def print_tree(self, prefix=""):  
+        """
+        Prints representation of expression tree to terminal. 
+        """
         print("%s%s" % (prefix, self.node_label()))
         if self.left:
             self.left.print_tree(prefix + "   ")
@@ -59,6 +72,9 @@ class Tree:
             self.right.print_tree(prefix + "   ")
 
     def random_tree(self, grow, max_depth, depth=0):
+        """
+        Generates random tree using either grow or full methods. 
+        """
         # Full method
         if depth < MIN_DEPTH or (depth < MAX_DEPTH and not grow):
             self.body = random.choice(operators)
@@ -79,6 +95,9 @@ class Tree:
         return copy.deepcopy(self)
 
     def tree_string(self):
+        """
+        Returns expression tree as string.
+        """
         if self.body is None:
             return 0
         if self.left is None and self.right is None:
@@ -95,6 +114,9 @@ class Tree:
             return str(left_sum) + '/' + str(right_sum)
 
     def compute_tree(self, x1, x2, x3):
+        """
+        Evaluates tree with passed values of x1, x2, and x3.
+        """
         if (self.body in operators):
             try:
                 return self.body(self.left.compute_tree(x1, x2, x3), self.right.compute_tree(x1, x2, x3))
@@ -141,7 +163,7 @@ def random_subtree(parent2, path):
     Selected random subtree from parent2 to cross with parent1.
     """
     rand = random.uniform(0, 1)
-    if rand > CROSSOVER_RATE or (not parent2.left and not parent2.right):
+    if rand > PROB_CROSSOVER or (not parent2.left and not parent2.right):
         return path
     coin_toss = random.randint(0, 1)
     if not parent2.right or coin_toss % 2 == 1:
@@ -157,32 +179,32 @@ def crossover(parent1, parent2):
     path2 = random_subtree(parent2, "")
     parent1 = parent1.copy()
     parent2 = parent2.copy()
-    walker1 = parent1
-    walker1parent = parent1
-    walker2 = parent2
-    walker2parent = parent2
+    loc1 = parent1
+    loc1parent = parent1
+    loc2 = parent2
+    loc2parent = parent2
     for i in range(len(path1)):
-        walker1parent = walker1
+        loc1parent = loc1
         if path1[i] == "1":
-            walker1 = walker1parent.get_right()
+            loc1 = loc1parent.get_right()
         else:
-            walker1 = walker1parent.get_left()
+            loc1 = loc1parent.get_left()
     for i in range(len(path2)):
-        walker2parent = walker2
+        loc2parent = loc2
         if path2[i] == "1":
-            walker2 = walker2parent.get_right()
+            loc2 = loc2parent.get_right()
         else:
-            walker2 = walker2parent.get_left()
+            loc2 = loc2parent.get_left()
     if(len(path1)-1 >= 0):
         if path1[len(path1)-1] == "1":
-            walker1parent.right = walker2
+            loc1parent.right = loc2
         else:
-            walker1parent.left = walker2
+            loc1parent.left = loc2
     if(len(path2) - 1 >= 0):
         if path2[-1] == "1":
-            walker2parent.right = walker1
+            loc2parent.right = loc1
         else:
-            walker2parent.left = walker1
+            loc2parent.left = loc1
     return (parent1, parent2)
 
 

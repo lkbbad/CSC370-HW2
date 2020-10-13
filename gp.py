@@ -1,3 +1,8 @@
+"""
+Genetic programming-based symbolic regression implementation.
+Authors: Caroline Sigl and Lindy Bustabad
+"""
+
 import tree1
 import tree2
 import read_in
@@ -5,6 +10,8 @@ import sys
 import random
 import copy
 import math
+import matplotlib.pyplot as plt
+import numpy as np
 
 GENERATIONS = 51
 POP_SIZE = 500
@@ -29,16 +36,17 @@ def fitness1(func, x_training, y_training):
     fitness = 0.0
     depth = tree1.tree_depth(func)
     if depth > 10: # if deeper than 10, fitness is 0 and the tree will not become selected
-        return 0
+        return 0, sys.maxsize
     for i in range(len(x_training)):
         diff_squared = (abs(func.compute_tree(x_training[i]) - y_training[i]))**2
         fitness += diff_squared
+    mse = fitness / len(x_training)
     fitness = (fitness* 1.05**depth) / len(x_training)
 
     if not (math.isnan(fitness)):
-        return 1.0 / fitness
+        return (1.0 / fitness), mse
     else:
-        return 0
+        return 0, sys.maxsize
 
 
 def fitness2(func, x1_training, x2_training, x3_training, y_training):
@@ -48,16 +56,17 @@ def fitness2(func, x1_training, x2_training, x3_training, y_training):
     fitness = 0.0
     depth = tree2.tree_depth(func)
     if depth > 10: # if deeper than 10, fitness is 0 and the tree will not become selected
-        return 0
+        return 0, sys.maxsize
     for i in range(len(x1_training)):  
         diff_squared = (abs(func.compute_tree(x1_training[i], x2_training[i], x3_training[i]) - y_training[i]))**2
         fitness += diff_squared
+    mse = fitness / len(x1_training) # Calculte MSE
     fitness = (fitness* 1.05**depth) / len(x1_training)
 
     if not (math.isnan(fitness)):
-        return 1.0 / fitness
+        return (1.0 / fitness), mse
     else:
-        return 0
+        return 0, sys.maxsize
 
 
 def make_wheel(fitnesses):
@@ -99,7 +108,7 @@ def dataset1(population, training_df, check_df, TRAINING):
     
     # Find fitnesses for each individual in initial population
     for func in population:
-        func.fitness = fitness1(func, x_training, y_training)
+        func.fitness, func.mse = fitness1(func, x_training, y_training)
         # Initial grooming of population for "bad" individuals
         if func.fitness != 0 and not math.isnan(func.fitness) and func not in current_gen:
             if func.fitness > best_fitness:
@@ -111,13 +120,14 @@ def dataset1(population, training_df, check_df, TRAINING):
     while(len(current_gen) < POP_SIZE):
         population = tree1.init_population(2)
         for func in population:
-            func.fitness = fitness1(func, x_training, y_training)
+            func.fitness, func.mse = fitness1(func, x_training, y_training)
             if func.fitness != 0 and not math.isnan(func.fitness) and func not in current_gen:
                 current_gen.append(func)
                 if func.fitness > best_fitness:
                     best_func = func
                     best_fitness = func.fitness
-    print(best_fitness)
+    print("Fitness is: ", best_fitness)
+    print("MSE is: ", best_func.mse)
     best_func.print_tree()
 
     for gen in range(GENERATIONS):
@@ -132,14 +142,14 @@ def dataset1(population, training_df, check_df, TRAINING):
             xo_parent1 = fitness_prop_selection(current_gen, roulette)
             xo_parent2 = fitness_prop_selection(current_gen, roulette)
             xo_child, xo_child2 = tree1.crossover(xo_parent1, xo_parent2)
-            xo_child.fitness = fitness1(xo_child, x_training, y_training)
-            xo_child2.fitness = fitness1(xo_child2, x_training, y_training)
+            xo_child.fitness, xo_child.mse = fitness1(xo_child, x_training, y_training)
+            xo_child2.fitness, xo_child2.mse = fitness1(xo_child2, x_training, y_training)
             # Select the most fit child
             if xo_child2.fitness > xo_child.fitness:
                 xo_child = xo_child2
-            xo_child.fitness = fitness1(xo_child, x_training, y_training)
-            xo_parent1.fitness = fitness1(xo_parent1, x_training, y_training)
-            xo_parent2.fitness = fitness1(xo_parent2, x_training, y_training)
+            xo_child.fitness, xo_child.mse = fitness1(xo_child, x_training, y_training)
+            xo_parent1.fitness, xo_parent1.mse = fitness1(xo_parent1, x_training, y_training)
+            xo_parent2.fitness, xo_parent2.mse = fitness1(xo_parent2, x_training, y_training)
             # Pseudo-hill climbing: add child into new generation only if more fit than parents
             # Otherwise, add most fit parent
             if (xo_child.fitness < xo_parent1.fitness):
@@ -159,19 +169,20 @@ def dataset1(population, training_df, check_df, TRAINING):
 
         # Generate fitnesses for new population and select the most fit individual
         for func in nextgen_population:
-            func.fitness = fitness1(func, x_training, y_training)
+            func.fitness, func.mse = fitness1(func, x_training, y_training)
             if func.fitness != float("inf"):
                 if func.fitness > best_fitness:
                     best_fitness = func.fitness
                     best_func = copy.deepcopy(func)
                     best_func.print_tree()
-                    print(best_fitness)
+                    print("Fitness is: ", best_fitness)
+                    print("MSE is: ", best_func.mse)
 
         current_gen = copy.deepcopy(nextgen_population)
     
-    check_fitness = fitness1(best_func, x_check, y_check)
+    check_fitness, best_func.mse = fitness1(best_func, x_check, y_check)
 
-    return best_func, check_fitness
+    return best_func, check_fitness, best_func.mse
 
 
 def dataset2(population, training_df, check_df, TRAINING):
@@ -193,7 +204,7 @@ def dataset2(population, training_df, check_df, TRAINING):
 
     # Find fitnesses for each individual in initial population
     for func in population:
-        func.fitness = fitness2(func, x1_training, x2_training, x3_training, y_training)
+        func.fitness, func.mse = fitness2(func, x1_training, x2_training, x3_training, y_training)
         # Initial grooming of population for "bad" individuals
         if func.fitness != 0 and not math.isnan(func.fitness) and func not in current_gen:
             if (func.tree_string().find('x1') != -1) and (func.tree_string().find('x2') != -1) and (func.tree_string().find('x3') != -1):
@@ -205,14 +216,15 @@ def dataset2(population, training_df, check_df, TRAINING):
     while(len(current_gen) < POP_SIZE):
         population = tree2.init_population(2)
         for func in population:
-            func.fitness = fitness2(func, x1_training, x2_training, x3_training, y_training)
+            func.fitness, func.mse = fitness2(func, x1_training, x2_training, x3_training, y_training)
             if func.fitness != 0 and not math.isnan(func.fitness) and func not in current_gen:
                 if (func.tree_string().find('x1') != -1) and (func.tree_string().find('x2') != -1) and (func.tree_string().find('x3') != -1):
                     current_gen.append(func)
                     if func.fitness > best_fitness:
                         best_func = func
                         best_fitness = func.fitness
-    print(best_fitness)
+    print("Fitness is: ", best_fitness)
+    print("MSE is: ", best_func.mse)
     best_func.print_tree()
 
     for gen in range(GENERATIONS):
@@ -227,14 +239,14 @@ def dataset2(population, training_df, check_df, TRAINING):
             xo_parent1 = fitness_prop_selection(current_gen, roulette)
             xo_parent2 = fitness_prop_selection(current_gen, roulette)
             xo_child, xo_child2 = tree1.crossover(xo_parent1, xo_parent2)
-            xo_child.fitness = fitness2(xo_child, x1_training, x2_training, x3_training, y_training)
-            xo_child2.fitness = fitness2(xo_child2, x1_training, x2_training, x3_training, y_training)
+            xo_child.fitness, xo_child.mse = fitness2(xo_child, x1_training, x2_training, x3_training, y_training)
+            xo_child2.fitness, xo_child2.mse = fitness2(xo_child2, x1_training, x2_training, x3_training, y_training)
             # Select the most fit child
             if xo_child2.fitness > xo_child.fitness:
                 xo_child = xo_child2
-            xo_child.fitness = fitness2(xo_child, x1_training, x2_training, x3_training, y_training)
-            xo_parent1.fitness = fitness2(xo_parent1, x1_training, x2_training, x3_training, y_training)
-            xo_parent2.fitness = fitness2(xo_parent2, x1_training, x2_training, x3_training, y_training)
+            xo_child.fitness, xo_child.mse = fitness2(xo_child, x1_training, x2_training, x3_training, y_training)
+            xo_parent1.fitness, xo_parent1.mse = fitness2(xo_parent1, x1_training, x2_training, x3_training, y_training)
+            xo_parent2.fitness, xo_parent2.mse = fitness2(xo_parent2, x1_training, x2_training, x3_training, y_training)
             # Pseudo-hill climbing: add child into new generation only if more fit than parents
             # Otherwise, add most fit parent
             if (xo_child.fitness < xo_parent1.fitness):
@@ -254,20 +266,26 @@ def dataset2(population, training_df, check_df, TRAINING):
 
         # Generate fitnesses for new population and select the most fit individual
         for func in nextgen_population:
-            func.fitness = fitness2(func, x1_training, x2_training, x3_training, y_training)
+            func.fitness, func.mse = fitness2(func, x1_training, x2_training, x3_training, y_training)
             if func.fitness != float("inf"):
                 if func.fitness > best_fitness:
                     best_fitness = func.fitness
                     best_func = copy.deepcopy(func)
                     best_func.print_tree()
-                    print(best_fitness)
+                    print("Fitness is: ", best_fitness)
+                    print("MSE is: ", func.mse)
 
         current_gen = copy.deepcopy(nextgen_population)
     
-    check_fitness = fitness2(best_func, x1_check, x2_check, x3_check, y_check)
+    check_fitness, best_func.mse = fitness2(best_func, x1_check, x2_check, x3_check, y_check)
 
-    return best_func, check_fitness
+    return best_func, check_fitness, best_func.mse
 
+def best_func(X):
+    """
+    Best fit model for dataset1.
+    """
+    return X * X - 6 * X + 14
 
 def main():
     # Read in dataset1 or dataset2 based on command line argument 1 or 2
@@ -290,7 +308,7 @@ def main():
         else:
             # Create first generation of functions 
             population = tree2.init_population(POP_SIZE)
-            equation, fitness = dataset2(population, training_df, check_df, TRAINING)
+            equation, fitness, mse = dataset2(population, training_df, check_df, TRAINING)
             equations.append(equation)
             fitnesses.append(fitness)
 
@@ -300,7 +318,31 @@ def main():
 
     print('Symbol regression result: ')
     best_equation.print_tree()
-    print(best_equation.fitness)
+    print("Final fitness is: ", best_equation.fitness)
+    print("Final MSE is: ", best_equation.mse)
+        
+    # MATPLOT LIB CODE
+    # my_range = np.arange(-5, 5.0, step=.01)
+    
+    # # Full dataset
+    # fig, ax = plt.subplots()
+    # full_df = dataset[1:]
+    # x_full = np.array(full_df['x'].tolist(), dtype='float')
+    # y_full = np.array(full_df['f(x)'].tolist(), dtype='float')
+
+    # ax.scatter(x_full, y_full,
+    #            label='Dataset1 Values', color='C2')
+
+    # ax.plot(my_range, best_func(my_range),
+    #         label='Predicted Values', color='C3')
+
+    # ax.set_xlabel('X')
+    # ax.set_ylabel('f(x)')
+    # ax.legend()
+    # plt.suptitle(
+    #     'Function f(x) and Dataset1')
+    # plt.show()
+
 
 if __name__ == "__main__":
     main()
