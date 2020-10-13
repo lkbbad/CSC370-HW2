@@ -1,6 +1,7 @@
 # CSC370-HW2
 
 Implementation of genetic programming-based symbolic regression. 
+
 Authors: Caroline Sigl and Lindy Bustabad
 
 ``dataset1`` and ``dataset2`` located in folder ``datasets``, collected data from trial located in folder ``csv``.
