@@ -8,12 +8,12 @@ from pandas import read_csv
 
 def dataset1():
     #Importing Dataset #1
-    dataset1_df = pandas.read_csv("./csv/dataset1.csv", sep=',', delimiter=None, header='infer')
+    dataset1_df = pandas.read_csv("./datasets/dataset1.csv", sep=',', delimiter=None, header='infer')
     return dataset1_df
 
 def dataset2():
     # #Importing Dataset #2
-    dataset2_df = pandas.read_csv("./csv/dataset2.csv", sep=',', delimiter=None, header='infer')
+    dataset2_df = pandas.read_csv("./datasets/dataset2.csv", sep=',', delimiter=None, header='infer')
     return dataset2_df
 
 def d1fitness():
